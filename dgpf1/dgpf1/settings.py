@@ -52,6 +52,7 @@ ALLOWED_HOSTS = CONF['ALLOWED_HOSTS']
 
 INSTALLED_APPS = [
     'provider',
+    'whitenoise',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,6 +64,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,8 +81,10 @@ TEMPLATES = [
         'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
+            'debug': DEBUG,
             'libraries': {
                 'settings_value': 'templatetags.get_settings',
+                'urldecode': 'templatetags.custom_tags',
             },
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -102,20 +106,21 @@ DATABASES = {
     'default': {
         'USER': CONF['DJANGO_USER'],
         'PASSWORD': CONF['DJANGO_PASS'],
-        'HOST': os.environ.get('PGHOST', CONF.get('DB_HOSTNAME_WRITE', 'localhost')),
+        'HOST': os.environ.get('PGHOST', CONF.get('DB_HOSTNAME_WRITE', 'db')),
+    },
+    'sqlite3': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-#   'sqlite3': {
-#       'ENGINE': 'django.db.backends.sqlite3',
-#       'NAME': BASE_DIR / 'db.sqlite3',
-#   }
 }
 
 for db in DATABASES:
-    DATABASES[db]['NAME'] = CONF['DB_DATABASE']
-    DATABASES[db]['ENGINE'] = 'django.db.backends.postgresql'
-    DATABASES[db]['PORT'] = os.environ.get('PGPORT', CONF.get('DB_PORT', '5432'))
-    DATABASES[db]['CONN_MAX_AGE'] = 600 # Persist DB connections
-    DATABASES[db]['OPTIONS'] = {'options': '-c search_path=ed_dgpf1,public'}
+    if db == "default":
+        DATABASES[db]['NAME'] = CONF['DB_DATABASE']
+        DATABASES[db]['ENGINE'] = 'django.db.backends.postgresql'
+        DATABASES[db]['PORT'] = os.environ.get('PGPORT', CONF.get('DB_PORT', '5432'))
+        DATABASES[db]['CONN_MAX_AGE'] = 600 # Persist DB connections
+        DATABASES[db]['OPTIONS'] = {'options': '-c search_path=ed_dgpf1,public'}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -167,7 +172,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = CONF['STATIC_ROOT']
+
+STATIC_ROOT = BASE_DIR / 'static'
 STATICFILES_DIRS = [BASE_DIR / 'staticfiles']
 
 # Default primary key field type
@@ -288,6 +294,30 @@ SEARCH_INDEXES = {
             ('title', title),
             ('general_info', general_info),
             ('detail_result_display_fields', detail_result_display_fields),
+        ],
+    },
+    'access-software-v4': {
+        'name': 'ACCESS Software Catalog - Beta catalog v4',
+        'uuid': '3cc4aeec-55a5-4cd6-96d1-8531aef88e83',
+        'facets': [
+            {'name': 'Category', 'field_name': 'Category'},
+            {'name': 'Creation Time', 'field_name': 'CreationTime'},
+            {'name': 'Handle Key', 'field_name': 'HandleKey'},
+            {'name': 'Handle Type', 'field_name': 'HandleType'},
+            {'name': 'Info Group ID', 'field_name': 'Info_GroupID'},
+            {'name': 'Info Group Name', 'field_name': 'Info_GroupName'},
+            {'name': 'Info Resource ID', 'field_name': 'Info_ResourceID'},
+            {'name': 'Info Resource Name', 'field_name': 'Info_ResourceName'},
+            {'name': 'Keywords', 'field_name': 'Keywords'},
+            {'name': 'Name', 'field_name': 'Name'},
+            {'name': 'Organization ID', 'field_name': 'Organization_ID'},
+            {'name': 'Organization Name', 'field_name': 'Organization_Name'},
+            {'name': 'Support Status', 'field_name': 'SupportStatus'},
+            {'name': 'URL', 'field_name': 'URL'},
+            {'name': 'Version', 'field_name': 'Version'},
+        ],
+        'facet_modifiers': [
+           'globus_portal_framework.modifiers.facets.drop_empty',
         ],
     }
 }
