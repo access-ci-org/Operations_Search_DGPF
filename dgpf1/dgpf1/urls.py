@@ -30,6 +30,6 @@ urlpatterns = [
     path('', include('globus_portal_framework.urls')),
     # Provides Login urls for Globus Auth
     path('', include('social_django.urls', namespace='social')),
-    # path('favicon.ico', views.favicon),
+    path('favicon.ico', views.favicon),
     path('dump.html', views.Debug_Details, name='debug-details'),
 ]

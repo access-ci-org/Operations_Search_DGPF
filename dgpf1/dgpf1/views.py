@@ -11,11 +11,11 @@ from globus_portal_framework.gsearch import get_index
 
 from dgpf1.download import download
 
-# @require_GET
-# @cache_control(max_age=60 * 60 * 24, immutable=True, public=True)  # one day
-# def favicon(request: HttpRequest) -> HttpResponse:
-#     file = open(settings.STATIC_ROOT + '/img/favicon.ico', 'rb')
-#     return FileResponse(file)
+@require_GET
+@cache_control(max_age=60 * 60 * 24, immutable=True, public=True)  # one day
+def favicon(request: HttpRequest) -> HttpResponse:
+    file = open(settings.STATIC_ROOT + '/img/favicon.ico', 'rb')
+    return FileResponse(file)
 
 def Debug_Details(request, format=None, **kwargs):
     return debug.technical_500_response(request, *sys.exc_info(), status_code=400)
