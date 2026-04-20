@@ -44,6 +44,6 @@ COPY . .
 RUN useradd -m appuser && chown -R appuser /app
 USER appuser
 
-COPY --chmod=755 entrypoint.sh /entrypoint.sh
+COPY --chmod=755 scripts/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
