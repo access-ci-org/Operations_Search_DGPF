@@ -18,3 +18,17 @@ def lookup_replace_provider_id(facets: dict) -> dict:
                                 "added to the database!")
                     bucket["custom_display_value"] = "Other"
     return facets
+
+
+def combine_info_group(facets: list) -> list:
+    """Collapse Info_GroupID and Info_GroupName into a single 'Resource Group'
+    facet that filters by name. Drops the raw ID facet from display."""
+    combined = []
+    for facet in facets:
+        if facet["field_name"] == "Info_GroupID":
+            continue
+        if facet["field_name"] == "Info_GroupName":
+            facet = dict(facet)
+            facet["name"] = "Resource Group"
+        combined.append(facet)
+    return combined

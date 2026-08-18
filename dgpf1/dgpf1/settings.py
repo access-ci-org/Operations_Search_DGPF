@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 import json
 import os
 import sys
-from dgpf1.fields import title, general_info, detail_result_display_fields
+from dgpf1.fields import title, general_info, detail_result_display_fields, software_title, software_detail_result_display_fields
 #import pdb
 #pdb.set_trace()
 
@@ -299,24 +299,22 @@ SEARCH_INDEXES = {
         'uuid': '3cc4aeec-55a5-4cd6-96d1-8531aef88e83',
         'facets': [
             {'name': 'Category', 'field_name': 'Category'},
-            {'name': 'Creation Time', 'field_name': 'CreationTime'},
-            {'name': 'Handle Key', 'field_name': 'HandleKey'},
-            {'name': 'Handle Type', 'field_name': 'HandleType'},
-            {'name': 'Info Group ID', 'field_name': 'Info_GroupID'},
-            {'name': 'Info Group Name', 'field_name': 'Info_GroupName'},
-            {'name': 'Info Resource ID', 'field_name': 'Info_ResourceID'},
-            {'name': 'Info Resource Name', 'field_name': 'Info_ResourceName'},
             {'name': 'Keywords', 'field_name': 'Keywords'},
-            {'name': 'Name', 'field_name': 'Name'},
-            {'name': 'Organization ID', 'field_name': 'Organization_ID'},
-            {'name': 'Organization Name', 'field_name': 'Organization_Name'},
             {'name': 'Support Status', 'field_name': 'SupportStatus'},
-            {'name': 'URL', 'field_name': 'URL'},
-            {'name': 'Version', 'field_name': 'Version'},
+            {'name': 'Organization', 'field_name': 'Organization_Name'},
+            {'name': 'Resource Group', 'field_name': 'Info_GroupName'},
+            {'name': 'Resource', 'field_name': 'Info_ResourceName'},
         ],
         'facet_modifiers': [
            'globus_portal_framework.modifiers.facets.drop_empty',
+           # 'dgpf1.facet_modifiers.combine_info_group',
         ],
+        'fields': [
+            ('title', software_title),
+            ('general_info', general_info),
+            ('detail_result_display_fields', software_detail_result_display_fields),
+        ],
+        'template_override_dir': 'access-software-v4',
     }
 }
 
