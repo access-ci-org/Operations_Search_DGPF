@@ -1,5 +1,6 @@
-{% load static %}
 
+{% load static %}
+{% load urldecode %}
 {% block headextras %}{% endblock %}
 
 <div class="row">
@@ -23,14 +24,14 @@
   <div class="card my-3">
     <div class="card-header">
       <h3 class="search-title">
-        <a href="{% url 'detail' globus_portal_framework.index result.subject %}">{{result.all.0.Title|default:'Result'}}</a>
+        <a href="{% url 'detail' globus_portal_framework.index result.subject %}">{{result.subject|urldecode}}</a>
       </h3>
     </div>
     <div class="card-body">
       <table class="table table-sm borderless">
         <tbody>
         <tr>
-          {{result.all.0.Abstract|safe}}
+          {{result.all.0.Abstract|default:result.all.0.Description|safe}}
 <!--          {% for formatted_result in result.formatted_search_results %}-->
 <!--          <th>{{formatted_result.Title}}</th>-->
 <!--          {% endfor %}-->

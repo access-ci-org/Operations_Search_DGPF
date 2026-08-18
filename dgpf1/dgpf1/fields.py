@@ -5,6 +5,10 @@ def title(result):
     return result[0]['Title']
 
 
+def software_title(result):
+    return result[0].get('Name', 'Software Detail')
+
+
 def general_info(result):
     """Return all basic information in the first gmeta entry"""
     return result[0]
@@ -46,5 +50,43 @@ def detail_result_display_fields(result):
                 item["value"] = datetime.datetime.fromisoformat(item["value"].replace("Z", "+00:00")).strftime("%b %d  %Y %H:%M:%S %Z%z")
             except Exception:
                 # If the date cannot be parsed, just leave it.
+                pass
+    return display_fields
+
+
+def software_detail_result_display_fields(result):
+    possible_date_fields = ["CreationTime"]
+    info = general_info(result)
+    leading_fields = [
+        {"field_name": "Name"},
+        {"field_name": "Category"},
+        {"field_name": "Keywords"},
+        {"field_name": "SupportStatus", "display_name": "Support Status"},
+        {"field_name": "Version"},
+        {"field_name": "URL"},
+        {"field_name": "Organization_Name", "display_name": "Organization Name"},
+        {"field_name": "Organization_ID", "display_name": "Organization ID"},
+        {"field_name": "Info_GroupName", "display_name": "Resource Group"},
+        {"field_name": "Info_GroupID", "display_name": "Resource Group ID"},
+        {"field_name": "Info_ResourceName", "display_name": "Resource Name"},
+        {"field_name": "Info_ResourceID", "display_name": "Resource ID"},
+    ]
+    trailing_fields = [
+        {"field_name": "HandleKey", "display_name": "Handle Key"},
+        {"field_name": "HandleType", "display_name": "Handle Type"},
+        {"field_name": "CreationTime", "display_name": "Creation Time"},
+    ]
+    known_field_names = [fl["field_name"] for fl in leading_fields + trailing_fields]
+    other_fields = [{"field_name": f} for f in info if f not in known_field_names]
+    display_fields = leading_fields + other_fields + trailing_fields
+    for item in display_fields:
+        item["display_name"] = item.get("display_name", item["field_name"].replace("_", " "))
+        item["value"] = info.get(item["field_name"])
+        item["is_list"] = isinstance(item["value"], list)
+        if item["field_name"] in possible_date_fields:
+            try:
+                item["value"] = datetime.datetime.fromisoformat(item["value"].replace("Z", "+00:00")).strftime("%b %d %Y %H:%M:%S %Z%z")
+                item["is_list"] = False
+            except Exception:
                 pass
     return display_fields

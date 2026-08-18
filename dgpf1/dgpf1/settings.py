@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 import json
 import os
 import sys
-from dgpf1.fields import title, general_info, detail_result_display_fields
+from dgpf1.fields import title, general_info, detail_result_display_fields, software_title, software_detail_result_display_fields
 #import pdb
 #pdb.set_trace()
 
@@ -79,8 +79,10 @@ TEMPLATES = [
         'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
+            'debug': DEBUG,
             'libraries': {
                 'settings_value': 'templatetags.get_settings',
+                'urldecode': 'templatetags.custom_tags',
             },
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -102,20 +104,21 @@ DATABASES = {
     'default': {
         'USER': CONF['DJANGO_USER'],
         'PASSWORD': CONF['DJANGO_PASS'],
-        'HOST': os.environ.get('PGHOST', CONF.get('DB_HOSTNAME_WRITE', 'localhost')),
+        'HOST': os.environ.get('PGHOST', CONF.get('DB_HOSTNAME_WRITE', 'db')),
+    },
+    'sqlite3': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-#   'sqlite3': {
-#       'ENGINE': 'django.db.backends.sqlite3',
-#       'NAME': BASE_DIR / 'db.sqlite3',
-#   }
 }
 
 for db in DATABASES:
-    DATABASES[db]['NAME'] = CONF['DB_DATABASE']
-    DATABASES[db]['ENGINE'] = 'django.db.backends.postgresql'
-    DATABASES[db]['PORT'] = os.environ.get('PGPORT', CONF.get('DB_PORT', '5432'))
-    DATABASES[db]['CONN_MAX_AGE'] = 600 # Persist DB connections
-    DATABASES[db]['OPTIONS'] = {'options': '-c search_path=ed_dgpf1,public'}
+    if db == "default":
+        DATABASES[db]['NAME'] = CONF['DB_DATABASE']
+        DATABASES[db]['ENGINE'] = 'django.db.backends.postgresql'
+        DATABASES[db]['PORT'] = os.environ.get('PGPORT', CONF.get('DB_PORT', '5432'))
+        DATABASES[db]['CONN_MAX_AGE'] = 600 # Persist DB connections
+        DATABASES[db]['OPTIONS'] = {'options': '-c search_path=ed_dgpf1,public'}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -167,7 +170,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = CONF['STATIC_ROOT']
+
+STATIC_ROOT = BASE_DIR / 'static'
 STATICFILES_DIRS = [BASE_DIR / 'staticfiles']
 
 # Default primary key field type
@@ -289,6 +293,28 @@ SEARCH_INDEXES = {
             ('general_info', general_info),
             ('detail_result_display_fields', detail_result_display_fields),
         ],
+    },
+    'access-software-v4': {
+        'name': 'ACCESS Software Catalog - Beta catalog v4',
+        'uuid': '3cc4aeec-55a5-4cd6-96d1-8531aef88e83',
+        'facets': [
+            {'name': 'Category', 'field_name': 'Category'},
+            {'name': 'Keywords', 'field_name': 'Keywords'},
+            {'name': 'Support Status', 'field_name': 'SupportStatus'},
+            {'name': 'Organization', 'field_name': 'Organization_Name'},
+            {'name': 'Resource Group', 'field_name': 'Info_GroupName'},
+            {'name': 'Resource', 'field_name': 'Info_ResourceName'},
+        ],
+        'facet_modifiers': [
+           'globus_portal_framework.modifiers.facets.drop_empty',
+           # 'dgpf1.facet_modifiers.combine_info_group',
+        ],
+        'fields': [
+            ('title', software_title),
+            ('general_info', general_info),
+            ('detail_result_display_fields', software_detail_result_display_fields),
+        ],
+        'template_override_dir': 'access-software-v4',
     }
 }
 
